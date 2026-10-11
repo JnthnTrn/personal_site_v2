@@ -1,6 +1,6 @@
-# Personal site
+# Personal site, v2
 
-The view from an observation deck: a starfield, a planet below, and the site's content as panels on the glass.
+Yggdrasil, the Norse world tree. The name sits under the northern lights above the crown, the trunk runs down the page, and each section hangs from it under an Elder Futhark rune: Ansuz for About, Wunjo for Listening, Raidho for the current side quest, Kenaz for Projects, Othala for Coursework and Gebo for Contact. The roots close the page.
 
 ## Run it
 
@@ -11,7 +11,9 @@ npm run dev
 
 ## Make it yours
 
-All personal text, links and featured projects are in `lib/site.ts`; coursework is in `lib/coursework.ts`; the resume is `public/resume.pdf`. The scene is drawn in CSS and canvas (`components/Viewport.tsx`, top of `app/globals.css`); there are no image assets.
+All personal text, links and featured projects are in `lib/site.ts`; coursework is in `lib/coursework.ts`; the resume is `public/resume.pdf`.
+
+The tree is generated, not drawn by hand: `lib/tree.ts` grows a mirror-symmetric branching tree from a seed, and `app/page.tsx` sets the seeds and proportions for the crown and the roots. Change a seed to get a different tree.
 
 ## Spotify "Listening" panel
 
@@ -26,6 +28,6 @@ The panel shows what is playing now (or the last track played), your most played
 
 Featured projects are the `projects` list in `lib/site.ts`. The contribution heatmap is read from GitHub's public calendar page, because there is no token-free API for it; if GitHub changes that page the heatmap hides itself.
 
-## Adding a widget
+## Adding a section
 
-Add a `<section className="panel">` in `app/page.tsx`. Panels sit on a 12-column grid; data that needs a secret goes behind a route in `app/api/`.
+Add a `<Realm>` in `app/page.tsx` with a rune, its name and meaning, and a title. Give it `side="left"` or `side="right"` to hang it beside the trunk on wide screens, or leave `side` off for a full-width panel. Data that needs a secret goes behind a route in `app/api/`.
