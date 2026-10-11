@@ -1,9 +1,10 @@
-import Clock from "@/components/Clock";
 import Contributions from "@/components/Contributions";
 import NowPlaying from "@/components/NowPlaying";
-import Viewport from "@/components/Viewport";
+import Sky from "@/components/Sky";
+import Tree from "@/components/Tree";
 import { coursework } from "@/lib/coursework";
 import { githubUrl, projects, sideQuest, site } from "@/lib/site";
+import { growTree } from "@/lib/tree";
 
 const GitHubIcon = () => (
   <svg viewBox="0 0 16 16" width="16" height="16" fill="currentColor" aria-hidden="true">
@@ -58,88 +59,128 @@ function Links() {
   );
 }
 
+const crown = growTree({ seed: 7, depth: 8, trunk: 150, bough: 150, spread: 0.46, lean: 0.1, girth: 4.5 });
+const roots = growTree({ seed: 19, depth: 6, trunk: 40, bough: 120, spread: 0.55, lean: 0.28, girth: 4.5 });
+
+// Each section hangs from the trunk under an Elder Futhark rune whose meaning fits it.
+function Realm({
+  id,
+  rune,
+  name,
+  meaning,
+  title,
+  side,
+  aside,
+  children,
+}: {
+  id: string;
+  rune: string;
+  name: string;
+  meaning: string;
+  title: string;
+  side?: "left" | "right";
+  aside?: React.ReactNode;
+  children: React.ReactNode;
+}) {
+  return (
+    <section className={`realm ${side ? `realm-${side}` : "realm-full"}`} id={id} aria-labelledby={`${id}-title`}>
+      <span className="rune" aria-hidden="true">
+        {rune}
+      </span>
+      <header>
+        <p className="rune-name">
+          {name} · {meaning}
+        </p>
+        <h2 id={`${id}-title`}>{title}</h2>
+        {aside}
+      </header>
+      {children}
+    </section>
+  );
+}
+
 export default function Home() {
   return (
     <>
-      <Viewport />
+      <Sky />
 
-      <header className="beam">
+      <nav className="nav" aria-label="Sections">
         <a className="mark" href="#top" aria-label={`${site.name}, back to top`}>
           {site.initials}
         </a>
-        <nav aria-label="Sections">
+        <div>
           <a href="#about">About</a>
           <a href="#projects">Projects</a>
           <a href="#coursework">Coursework</a>
           <a href="#contact">Contact</a>
-        </nav>
-      </header>
+        </div>
+      </nav>
 
       <main>
         <section className="hero" id="top">
-          <p className="eyebrow">Observation deck</p>
           <h1>{site.name}</h1>
           <p className="role">{site.role}</p>
           <Links />
-          <a className="descend" href="#about">
-            <span>Below deck</span>
-          </a>
+          <div className="crown">
+            <Tree art={crown} className="crown-art" />
+          </div>
         </section>
 
-        <div className="deck">
-          <section className="panel panel-about" id="about" aria-labelledby="about-title">
-            <h2 id="about-title">
-              <span>01</span> About
-            </h2>
-            <p className="lede">{site.tagline}</p>
-            {site.about.map((p) => (
-              <p key={p}>{p}</p>
-            ))}
-            <dl className="facts">
-              {site.facts.map((f) => (
-                <div key={f.label}>
-                  <dt>{f.label}</dt>
-                  <dd>{f.value}</dd>
-                </div>
+        <div className="realms">
+          <div className="trunk" aria-hidden="true" />
+
+          <div className="fork">
+            <Realm id="about" rune="ᚨ" name="Ansuz" meaning="word" title="About" side="left">
+              <p className="lede">{site.tagline}</p>
+              {site.about.map((p) => (
+                <p key={p}>{p}</p>
               ))}
-            </dl>
-          </section>
-
-          <section className="panel panel-signal" id="signal" aria-labelledby="signal-title">
-            <h2 id="signal-title">
-              <span>02</span> Listening
-            </h2>
-            <NowPlaying />
-            <p className="footnote">Live from Spotify.</p>
-          </section>
-
-          <section className="panel panel-quest" id="quest" aria-labelledby="quest-title">
-            <h2 id="quest-title">
-              <span>03</span> Current side quest
-            </h2>
-            <span className="status status-live">In progress</span>
-            <p className="quest-name">{sideQuest.current}</p>
-            <p className="quest-note">{sideQuest.note}</p>
-            <p className="quest-goal">
-              <span>Objective</span>
-              {sideQuest.goal}
-            </p>
-            {sideQuest.completed.length > 0 && (
-              <ul className="quest-log">
-                {sideQuest.completed.map((q) => (
-                  <li key={q}>{q}</li>
+              <dl className="facts">
+                {site.facts.map((f) => (
+                  <div key={f.label}>
+                    <dt>{f.label}</dt>
+                    <dd>{f.value}</dd>
+                  </div>
                 ))}
-              </ul>
-            )}
-          </section>
+              </dl>
+            </Realm>
 
-          <section className="panel panel-wide" id="projects" aria-labelledby="projects-title">
-            <h2 id="projects-title">
-              <span>04</span> Projects
+            <div className="fork-right">
+              <Realm id="signal" rune="ᚹ" name="Wunjo" meaning="joy" title="Listening" side="right">
+                <NowPlaying />
+              </Realm>
+
+              <Realm id="quest" rune="ᚱ" name="Raidho" meaning="journey" title="Current side quest" side="right">
+                <span className="status status-live">In progress</span>
+                <p className="quest-name">{sideQuest.current}</p>
+                <p className="quest-note">{sideQuest.note}</p>
+                <p className="quest-goal">
+                  <span>Objective</span>
+                  {sideQuest.goal}
+                </p>
+                {sideQuest.completed.length > 0 && (
+                  <ul className="quest-log">
+                    {sideQuest.completed.map((q) => (
+                      <li key={q}>{q}</li>
+                    ))}
+                  </ul>
+                )}
+              </Realm>
+            </div>
+          </div>
+
+          <Realm
+            id="projects"
+            rune="ᚲ"
+            name="Kenaz"
+            meaning="craft"
+            title="Projects"
+            aside={
               <a className="h2-link" href={githubUrl} target="_blank" rel="noreferrer">
                 @{site.github} ↗
               </a>
-            </h2>
+            }
+          >
             <ul className="projects">
               {projects.map((p) => (
                 <li key={p.name}>
@@ -159,12 +200,9 @@ export default function Home() {
               ))}
             </ul>
             <Contributions />
-          </section>
+          </Realm>
 
-          <section className="panel panel-wide" id="coursework" aria-labelledby="coursework-title">
-            <h2 id="coursework-title">
-              <span>05</span> Coursework
-            </h2>
+          <Realm id="coursework" rune="ᛟ" name="Othala" meaning="heritage" title="Coursework">
             <ol className="terms">
               {coursework.map((t) => (
                 <li key={t.term}>
@@ -183,28 +221,22 @@ export default function Home() {
                 </li>
               ))}
             </ol>
-          </section>
+          </Realm>
 
-          <section className="panel panel-wide panel-contact" id="contact" aria-labelledby="contact-title">
-            <h2 id="contact-title">
-              <span>06</span> Contact
-            </h2>
+          <Realm id="contact" rune="ᚷ" name="Gebo" meaning="gift" title="Contact">
             <a className="hail" href={`mailto:${site.email}`}>
               {site.email}
             </a>
             <Links />
-          </section>
+          </Realm>
         </div>
+
+        <Tree art={roots} className="roots" />
       </main>
 
-      <footer className="sill">
-        <span className="sill-status">Systems nominal</span>
-        <span className="sill-place">
-          {site.location.label} · {site.location.coords}
-        </span>
-        <span>
-          Local <Clock timeZone={site.location.timeZone} />
-        </span>
+      <footer className="foot">
+        <span>{site.name}</span>
+        <span>{site.location.label}</span>
       </footer>
     </>
   );
